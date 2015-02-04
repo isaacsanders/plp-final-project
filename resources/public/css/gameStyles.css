@@ -20,8 +20,6 @@ a {
 
 canvas{
   float: left;
-  width: 300px;
-  height: 400px;
   border:1px solid #000000;
   margin-right: 25px;
 }
@@ -30,7 +28,7 @@ canvas{
     margin:0 auto;
     padding-bottom:25px;
     background:#EBF4FB;
-    width:504px;
+    width:404px;
     border:1px solid #ACD8F0;
     float: left;
 }
@@ -46,12 +44,12 @@ canvas{
     padding:10px;
     background:#fff;
     height:270px;
-    width:430px;
+    width:330px;
     border:1px solid #ACD8F0;
     overflow:scroll; }
 
 #usermsg {
-    width:395px;
+    width:295px;
     border:1px solid #ACD8F0; }
 
 #submit { width: 60px; }

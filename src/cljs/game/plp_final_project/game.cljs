@@ -16,7 +16,28 @@
 (defn drawSquare []
     (let [target (.getElementById js/document "surface")
           context (.getContext target "2d")]
-       (.fillRect context 0 0 250 100)
+       (.fillRect context 0 0 400 400)
+    )
+  )
+
+(defn image [src]
+  (let [img (new js/Image)]
+    (set! (. img -src ) src)
+    img))
+
+(defn drawTarget []
+    (let [target (.getElementById js/document "surface")
+          context (.getContext target "2d")
+          img (image "images/target.png")]
+       (.drawImage context img 0 0 400 400)
+    )
+  )
+
+(defn drawAim []
+    (let [target (.getElementById js/document "surface")
+          context (.getContext target "2d")
+          img (image "images/aim.png")]
+       (.drawImage context img 0 0)
     )
   )
 
@@ -25,5 +46,6 @@
              (aget js/document "getElementById"))
     (do
       (ev/listen! (dom/by-id "calc") :click add-help)
-      (drawSquare))
+      (drawTarget)
+      (drawAim))
     ))
