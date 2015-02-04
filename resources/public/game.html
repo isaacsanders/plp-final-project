@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Twitch Darts</title>
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/gameStyles.css">
+</head>
+<body>
+  <canvas id="surface" class="surface">
+      Your browser does not support HTML5 Canvas.
+  </canvas>
+
+  <div id="content">
+    <div id="menu">
+        <p class="welcome">Welcome, <b></b></p>
+    </div>
+
+    <div class = "chatbox" id="chatbox"></div>
+
+    <form id="commandForm" novalidate>
+        <input name="usermsg" type="text" id="usermsg" size="63" />
+
+        <input type="button"
+               value="Submit"
+               id="calc">
+    </form>
+</div>
+  <script src="js/final.js"></script>
+  <script>plp_final_project.game.init();</script>
+</body>
+</html>
