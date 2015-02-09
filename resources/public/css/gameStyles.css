@@ -18,10 +18,21 @@ a {
 
     a:hover { text-decoration:underline; }
 
-canvas{
+.overview{
+  color: black;
+}
+
+.board{
   float: left;
   border:1px solid #000000;
   margin-right: 25px;
+  width: 400px;
+  height: 400px;
+  position:relative;
+}
+
+canvas {
+  background-color: transparent;
 }
 
 #content, #commandform {

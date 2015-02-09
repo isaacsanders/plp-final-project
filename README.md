@@ -10,7 +10,9 @@ Download from http://example.com/FIXME.
 
 FIXME: explanation
 
-    $ java -jar plp-final-project-0.1.0-standalone.jar [args]
+Compile - lein do clean, cljsbuild clean, cljsbuild once
+
+Start Server - lein ring server    
 
 ## Options
 

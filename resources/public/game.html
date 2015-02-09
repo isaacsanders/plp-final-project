@@ -9,25 +9,35 @@
     <link rel="stylesheet" href="css/gameStyles.css">
 </head>
 <body>
-  <canvas id="surface" class="surface" width="400" height="400">
-      Your browser does not support HTML5 Canvas.
-  </canvas>
+  <div id="overview">
+      <div id="board" class="board" style="position:relative;">
+          <canvas id="surface" class="surface" width="400" height="400" style="z-index: 2; position:absolute; left:0px; top:0px;">
+          Your browser does not support HTML5 Canvas.
+          </canvas>
 
-  <div id="content">
-    <div id="menu">
-        <p class="welcome">Welcome, <b></b></p>
+          <canvas id="background" class="background" width="400" height="400" style="z-index: 1; position:absolute; left:0px; top:0px;">
+              Your browser does not support HTML5 Canvas.
+          </canvas>
+      </div>
+
+
+      <div id="content">
+        <div id="menu">
+            <p class="welcome">Welcome, <b></b></p>
+        </div>
+
+        <div class = "chatbox" id="chatbox"></div>
+
+            <form id="commandForm" novalidate>
+                <input name="usermsg" type="text" id="usermsg" size="63" />
+
+                <input type="button"
+                       value="Submit"
+                       id="calc">
+            </form>
+        </div>
+      </div>
     </div>
-
-    <div class = "chatbox" id="chatbox"></div>
-
-    <form id="commandForm" novalidate>
-        <input name="usermsg" type="text" id="usermsg" size="63" />
-
-        <input type="button"
-               value="Submit"
-               id="calc">
-    </form>
-</div>
   <script src="js/final.js"></script>
   <script>plp_final_project.game.init();</script>
 </body>
