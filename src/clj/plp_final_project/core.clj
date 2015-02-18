@@ -1,15 +1,17 @@
 (ns plp-final-project.core
   (:use compojure.core)
   (:require [compojure.handler :as handler]
-            [compojure.route :as route]))
+            [compojure.route :as route]
+            [ring.util.response :as resp]))
 
 ;; defroutes macro defines a function that chains individual route
 ;; functions together. The request map is passed to each function in
 ;; turn, until a non-nil response is returned.
 (defroutes app-routes
   ; to serve document root address
-  (GET "/" [] "<p>Hello from compojure</p>")
+  (GET "/" [] (resp/redirect "/index.html"))
   ; to serve static pages saved in resources/public directory
+
   (route/resources "/")
   ; if page is not found
   (route/not-found "Page not found"))
