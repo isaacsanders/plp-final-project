@@ -1,4 +1,5 @@
 (ns plp-final-project.game
+  (:use [cljs.reader :only [read-string]])
   (:require-macros [hiccups.core :as h])
   (:require [domina :as dom]
             [hiccups.runtime :as hiccupsrt]
@@ -22,16 +23,16 @@
   (let [x (+ a 25)
         y (+ b 25)]
     (if (inCircle x y 25)
-    "5"
+      5
     (if (inCircle x y 50)
-      "4"
+      4
       (if (inCircle x y 100)
-        "3"
+        3
         (if (inCircle x y 150)
-          "2"
+          2
           (if (inCircle x y 200)
-            "1"
-            "0")))))))
+            1
+            0)))))))
 
 (defn remove-help []
   (dom/destroy! (dom/by-class "help")))
@@ -78,44 +79,81 @@
       (drawCircle 200 200 50 [83 20 150])
       (drawCircle 200 200 25 [71 125 124])))
 
-(defn drawAim []
-    (let [target (.getElementById js/document "surface")
-          context (.getContext target "2d")
-          img (image "images/reticle.png")]
-       (.drawImage context img (get @state :x) (get @state :y))
-    )
-  )
+(defn drawAim [reticle]
+    (let [[x y] reticle
+          target (.getElementById js/document "surface")
+                  context (.getContext target "2d")
+                  img (image "/images/reticle.png")]
+          (.drawImage context img x y)))
+
 
 (defn drawText [score]
     (let [target (.getElementById js/document "scoreboard")
           context (.getContext target "2d")]
        (do (set! (.-font context) "30px Arial")
-           (.fillText context score 370 35))
-    )
-  )
+           (.fillText context (str score) 370 35))))
 
-(defn check-command [command]
-  (let [params (str/split command #" ")]
-    (case (get params 0)
-      "!Reset" (do (swap! state assoc :y 0) (swap! state assoc :x 0) (clear-canvas) (drawAim) (clear-text) (drawText "0")),
-      "!Up" (do (swap! state assoc :y (- (get @state :y) (js/parseInt (get params 1)))) (clear-canvas) (drawAim)),
-      "!Down" (do (swap! state assoc :y (+ (get @state :y) (js/parseInt (get params 1)))) (clear-canvas) (drawAim)),
-      "!Left" (do (swap! state assoc :x (- (get @state :x) (js/parseInt (get params 1)))) (clear-canvas) (drawAim)),
-      "!Right" (do (swap! state assoc :x (+ (get @state :x) (js/parseInt (get params 1)))) (clear-canvas) (drawAim)),
-      "!Shoot" (do (clear-text) (drawText (calc-score (get @state :x) (get @state :y))))
-      nil)))
+(defn next-state [command value state]
+  (let [[reticle score] state
+        [x y] reticle]
+    (.log js/console value)
+    (case command
+      "!Reset" [[(- x) (- y)] (- score)]
+      "!Up"    [[0 (- value)] 0]
+      "!Down"  [[0 value] 0]
+      "!Right" [[value 0] 0]
+      "!Left"  [[(- value) 0] 0]
+      "!Shoot" [[(- x) (- y)] (calc-score x y)]
+      [[0 0] 0])))
 
-(defn add-help []
-  (let [quantity (dom/value (dom/by-id "usermsg"))]
-    (do (check-command quantity) (dom/append! (dom/by-id "chatbox") (h/html [:div.help quantity])) (dom/set-value! (dom/by-id "usermsg") "")
-    )))
+(declare process-response)
 
-(defn ^:export init []
+(defn check-command [reticle score command]
+  (let [params (str/split command #" ")
+        command (get params 0)
+        value (int (get params 1))
+        [nu-reticle nu-score] (next-state command value [reticle score])
+        xhr (js/XMLHttpRequest.)]
+    (.open xhr "POST" (-> js/window .-location .-pathname (str "/ajax")) true)
+    (aset xhr "onreadystatechange" (fn []
+                                     (case (.-readyState xhr)
+                                       4 (process-response (.-response xhr))
+                                       nil)))
+    (.setRequestHeader xhr "Content-Type" "text/edn")
+    (.send xhr {:reticle nu-reticle :score nu-score})))
+
+(defn add-help [reticle score event]
+  (ev/prevent-default event)
+    (let [command (.-value (dom/by-id "usermsg"))]
+      (check-command reticle score command)
+      (dom/append! (dom/by-id "chatbox") (h/html [:div.help command]))
+      (dom/set-value! (dom/by-id "usermsg") "")))
+
+(defn process-response [res]
+  (let [state (read-string res)
+        commands (:commands state)
+        reticle (:reticle state)
+        score (:score state)]
+    (ev/unlisten! (dom/by-id "calc"))
+    (ev/listen! (dom/by-id "commandForm") :submit (partial add-help reticle score))
+    (drawCircles)
+    (clear-canvas)
+    (drawAim reticle)
+    (clear-text)
+    (drawText score)))
+
+(defn ^:export init [reticle score]
   (when (and js/document
              (aget js/document "getElementById"))
-    (do
-      (ev/listen! (dom/by-id "calc") :click add-help)
-      (drawCircles)
-      (drawAim)
-      (drawText "0"))
-    ))
+    (.setInterval js/window
+                  (fn []
+                    (let [xhr (js/XMLHttpRequest.)]
+                      (.open xhr "GET" (str (-> js/window .-location .-pathname) "/ajax") true)
+                      (aset xhr "onreadystatechange"
+                            (fn []
+                              (case (.-readyState xhr)
+                                4 (process-response (.-response xhr))
+                                nil)))
+                      (.setRequestHeader xhr "content-type" "text/edn")
+                      (.send xhr )))
+                  500)))
